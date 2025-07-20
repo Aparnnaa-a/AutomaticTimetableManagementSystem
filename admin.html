@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Toc H Institute Timetable Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .input-section {
+            background-color: #f4f4f4;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .input-group {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .input-group label {
+            display: inline-block;
+            width: 150px;
+        }
+        .input-group input[type="text"],
+        .input-group input[type="number"],
+        .input-group select {
+            width: 200px;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .input-group input[type="radio"] {
+            margin-right: 10px;
+        }
+        #timetableGrid {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #timetableGrid th, #timetableGrid td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+            font-size: 10px;
+            position: relative;
+        }
+        .break {
+            background-color: #e0e0e0;
+            font-weight: bold;
+        }
+        .restricted {
+            background-color: #f8d7da;
+        }
+        .library {
+            background-color: #d1ecf1;
+        }
+        .pt {
+            background-color: #d4edda;
+        }
+        .wop {
+            background-color: #f0e68c;
+        }
+        .home-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: orange;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            color: white;
+        }
+        .home-btn:hover {
+            background-color: darkorange;
+        }
+        .print-btn {
+            margin: 10px 0;
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .print-btn:hover {
+            background-color: #218838;
+        }
+        .delete-btn {
+            margin: 10px 0;
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #dc3545;
+            border: none;
+            color: white;
+            border-radius: 4px;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .save-btn {
+            margin: 10px 0;
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .requests-section {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .request-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        .request-actions {
+            margin-top: 5px;
+        }
+        .request-actions button {
+            margin-right: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .approve-btn {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .reject-btn {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        .edit-icon {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            cursor: pointer;
+            font-size: 8px;
+            color: #007bff;
+        }
+        .cell-menu {
+            position: absolute;
+            z-index: 100;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .admin-controls {
+            background-color: #f0f8ff;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            border: 1px solid #b8daff;
+        }
+        .add-course-btn {
+            margin: 10px 0;
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            width: 150px;
+        }
+        .add-course-btn:hover {
+            background-color: #218838;
+        }
+        .manage-lists {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .list-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .list-box {
+            flex: 1;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: white;
+        }
+        .list-box h4 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .list-items {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .list-item {
+            padding: 5px;
+            margin: 2px 0;
+            background-color: #f8f9fa;
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .list-item button {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+        .list-input {
+            display: flex;
+            gap: 5px;
+        }
+        .list-input input {
+            flex: 1;
+            padding: 5px;
+        }
+        .list-input button {
+            padding: 5px 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .semester-selector {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        .semester-selector select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+        }
+        .conflict-warning {
+            color: #dc3545;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        @media print {
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .header h2, .header h3 {
+                margin: 5px 0;
+            }
+            #timetableGrid {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 0 auto;
+            }
+            #timetableGrid th, #timetableGrid td {
+                border: 1px solid #000;
+                padding: 5px;
+                text-align: center;
+                font-size: 10px;
+            }
+            .break {
+                background-color: #e0e0e0;
+                font-weight: bold;
+            }
+            .restricted {
+                background-color: #f8d7da;
+            }
+            .library {
+                background-color: #d1ecf1;
+            }
+            .pt {
+                background-color: #d4edda;
+            }
+            .wop {
+                background-color: #f0e68c;
+            }
+            .input-section, .admin-controls, .requests-section, .button-group, .manage-lists, .semester-selector {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Toc H Institute of Science & Technology</h2>
+        <h3>Department of Information Technology</h3>
+        <h4>Time Table Generation</h4>
+    </div>
+
+    <div class="semester-selector">
+        <label for="semesterSelect">Select Semester: </label>
+        <select id="semesterSelect" onchange="changeSemester()">
+            <option value="1">Semester 1</option>
+            <option value="2">Semester 2</option>
+            <option value="3">Semester 3</option>
+            <option value="4">Semester 4</option>
+        </select>
+    </div>
+
+    <div class="input-section">
+        <h3>ADD COURSE DETAILS</h3>
+        <div class="input-group">
+            <label for="courseSubject">Subject:</label>
+            <select id="courseSubject" required>
+                <option value="">Select Subject</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="courseTeacher">Teacher:</label>
+            <select id="courseTeacher" required>
+                <option value="">Select Teacher</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="courseHours">Hours per Week:</label>
+            <input type="number" id="courseHours" min="1" max="6" required>
+        </div>
+        <div class="input-group">
+            <label>Type:</label>
+            <div>
+                <input type="radio" id="lectureRadio" name="courseType" value="lecture" checked> Lecture
+                <input type="radio" id="labRadio" name="courseType" value="lab"> Lab (3 continuous hours)
+            </div>
+        </div>
+        <div id="teacherConflictWarning" class="conflict-warning"></div>
+        <button class="add-course-btn" onclick="addCourse()">Add Course</button>
+    </div>
+
+    <div class="manage-lists">
+        <h3>MANAGE SUBJECTS AND TEACHERS</h3>
+        <div class="list-container">
+            <div class="list-box">
+                <h4>Subjects</h4>
+                <div class="list-items" id="subjectList"></div>
+                <div class="list-input">
+                    <input type="text" id="newSubject" placeholder="New subject name">
+                    <button onclick="addSubject()">Add</button>
+                </div>
+            </div>
+            <div class="list-box">
+                <h4>Teachers</h4>
+                <div class="list-items" id="teacherList"></div>
+                <div class="list-input">
+                    <input type="text" id="newTeacher" placeholder="New teacher name">
+                    <button onclick="addTeacher()">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-controls">
+        <p><small>Click on any cell in the timetable to manually update it</small></p>
+    </div>
+
+    <div class="requests-section">
+        <h3>Teacher Update Requests</h3>
+        <div id="requestsContainer"></div>
+    </div><br><br>
+
+    <div id="timetableContainer">
+        <table id="timetableGrid">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>9:00 to 9:50</th>
+                    <th>9:50 to 10:40</th>
+                    <th>10:40 to 10:50 (Break)</th>
+                    <th>10:50 to 11:40</th>
+                    <th>11:40 to 12:30</th>
+                    <th>12:30 to 1:20 (Break)</th>
+                    <th>1:20 to 2:10</th>
+                    <th>2:10 to 3:00</th>
+                    <th>3:00 to 3:10 (Break)</th>
+                    <th>3:10 to 4:00</th>
+                </tr>
+            </thead>
+            <tbody id="timetableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="button-group">
+        <button class="print-btn" onclick="window.print()">Print Timetable</button>
+        <button class="delete-btn" onclick="deleteTimetable()">Delete Timetable</button>
+        <button class="home-btn" onclick="goToHomePage()">Back to Home</button>
+    </div>
+
+    <div id="cellMenu" class="cell-menu" style="display: none;">
+        <div class="input-group">
+            <label for="editSubject">Subject:</label>
+            <select id="editSubject">
+                <option value="">Empty</option>
+                <option value="LIBRARY">LIBRARY</option>
+                <option value="PT">PT</option>
+                <option value="WOP">WOP</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="editTeacher">Teacher:</label>
+            <select id="editTeacher">
+                <option value="">None</option>
+                <option value="Librarian">Librarian</option>
+                <option value="PT Instructor">PT Instructor</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="editType">Type:</label>
+            <select id="editType">
+                <option value="lecture">Lecture</option>
+                <option value="lab">Lab</option>
+                <option value="library">Library</option>
+                <option value="pt">PT</option>
+                <option value="wop">WOP</option>
+            </select>
+        </div>
+        <div id="editConflictWarning" class="conflict-warning"></div>
+        <button onclick="updateCell()">Update</button>
+        <button onclick="hideMenu()">Cancel</button>
+    </div>
+
+    <script>
+        class TimetableGenerator {
+            constructor() {
+                this.days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                this.periods = 10;
+                this.courses = [];
+                this.timetable = {};
+                this.currentEditCell = null;
+                this.subjectColors = {};
+                this.currentSemester = "1";
+                this.initializeTimetable();
+            }
+
+            setSemester(semester) {
+                this.currentSemester = semester;
+                this.loadTimetable();
+            }
+
+            loadTimetable() {
+                const savedTimetables = JSON.parse(localStorage.getItem('timetables')) || {};
+                const savedSubjectColors = JSON.parse(localStorage.getItem('subjectColors')) || {};
+                
+                if (savedTimetables[this.currentSemester]) {
+                    this.timetable = savedTimetables[this.currentSemester];
+                } else {
+                    this.initializeTimetable();
+                }
+                
+                this.subjectColors = savedSubjectColors;
+            }
+
+            saveTimetable() {
+                const savedTimetables = JSON.parse(localStorage.getItem('timetables')) || {};
+                savedTimetables[this.currentSemester] = this.timetable;
+                localStorage.setItem('timetables', JSON.stringify(savedTimetables));
+                localStorage.setItem('subjectColors', JSON.stringify(this.subjectColors));
+            }
+
+            addCourse(subject, teacher, hours, type) {
+                this.courses.push({ subject, teacher, hours, type });
+                return true;
+            }
+
+            clearCourses() {
+                this.courses = [];
+            }
+
+            initializeTimetable() {
+                this.timetable = {};
+                this.days.forEach(day => {
+                    this.timetable[day] = new Array(this.periods).fill(null);
+
+                    this.timetable[day][2] = { subject: 'BREAK', type: 'break' };
+                    this.timetable[day][5] = { subject: 'BREAK', type: 'break' };
+                    this.timetable[day][8] = { subject: 'BREAK', type: 'break' };
+                    
+                    if (day === 'Saturday') {
+                        this.timetable[day][9] = { subject: 'RESTRICTED', type: 'restricted' };
+                    }
+
+                    if (day === 'Friday') {
+                        this.timetable[day][6] = { subject: 'WOP', type: 'wop' };
+                    }
+                });
+            }
+
+            placeLabs() {
+                const labCourses = this.courses.filter(course => course.type === 'lab');
+                const labDays = new Set();
+                
+                labCourses.forEach(labCourse => {
+                    let placed = false;
+                    
+                    for (let day of this.days) {
+                        if (!labDays.has(day) && day !== 'Saturday') {
+                            const slot = this.canPlaceLabContinuously(day, labCourse.teacher);
+                            if (slot) {
+                                this.allocateLabContinuously(day, slot, labCourse);
+                                labDays.add(day);
+                                placed = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (!placed) {
+                        alert(`Warning: Could not find a suitable slot for lab - ${labCourse.subject}.`);
+                    }
+                });
+            }
+
+            canPlaceLabContinuously(day, teacher) {
+                const daySchedule = this.timetable[day];
+                const possibleSlots = [
+                    [0, 1, 3],
+                    [3, 4, 6],
+                    [6, 7, 9]
+                ];
+
+                if (day === 'Saturday') {
+                    possibleSlots.pop();
+                }
+
+                for (let slot of possibleSlots) {
+                    if (daySchedule[slot[0]] === null && 
+                        daySchedule[slot[1]] === null && 
+                        daySchedule[slot[2]] === null &&
+                        !this.isTeacherScheduledAtTime(teacher, day, slot[0]) &&
+                        !this.isTeacherScheduledAtTime(teacher, day, slot[1]) &&
+                        !this.isTeacherScheduledAtTime(teacher, day, slot[2])) {
+                        return slot;
+                    }
+                }
+                return null;
+            }
+
+            isTeacherScheduledAtTime(teacher, day, period) {
+                const savedTimetables = JSON.parse(localStorage.getItem('timetables')) || {};
+                
+                for (const semester in savedTimetables) {
+                    const timetable = savedTimetables[semester];
+                    if (timetable[day] && timetable[day][period] && timetable[day][period].teacher === teacher) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            allocateLabContinuously(day, slot, labCourse) {
+                const daySchedule = this.timetable[day];
+                const labEntry = { 
+                    subject: labCourse.subject, 
+                    teacher: labCourse.teacher, 
+                    type: 'lab' 
+                };
+                
+                daySchedule[slot[0]] = labEntry;
+                daySchedule[slot[1]] = labEntry;
+                daySchedule[slot[2]] = labEntry;
+            }
+
+            placeLectures() {
+                const lectureCourses = this.courses.filter(course => course.type === 'lecture');
+                
+                lectureCourses.forEach(course => {
+                    let hoursPlaced = 0;
+                    let attempts = 0;
+                    const maxAttempts = 100;
+                    
+                    const hoursPerDay = new Map();
+                    
+                    while (hoursPlaced < course.hours && attempts < maxAttempts) {
+                        attempts++;
+                        
+                        const randomDay = this.days[Math.floor(Math.random() * this.days.length)];
+                        const randomPeriod = Math.floor(Math.random() * this.periods);
+                        
+                        const hoursOnDay = hoursPerDay.get(randomDay) || 0;
+                        if (hoursOnDay >= 2) {
+                            continue;
+                        }
+                        
+                        if (randomDay === 'Friday' && 
+                            (course.subject === 'Industrial Economics & Foreign Trade' || 
+                             course.subject === 'Comprehensive Course Work')) {
+                            continue;
+                        }
+                        
+                        if (this.canPlaceLecture(randomDay, randomPeriod, course.teacher)) {
+                            this.timetable[randomDay][randomPeriod] = {
+                                subject: course.subject,
+                                teacher: course.teacher,
+                                type: 'lecture'
+                            };
+                            hoursPlaced++;
+                            hoursPerDay.set(randomDay, (hoursPerDay.get(randomDay) || 0) + 1);
+                        }
+                    }
+                    
+                    if (hoursPlaced < course.hours) {
+                        alert(`Warning: Could only place ${hoursPlaced}/${course.hours} hours for ${course.subject}`);
+                    }
+                });
+            }
+
+            canPlaceLecture(day, period, teacher) {
+                return this.timetable[day] && 
+                       this.timetable[day][period] === null &&
+                       !(day === 'Saturday' && period === 9) &&
+                       !this.isTeacherScheduledAtTime(teacher, day, period);
+            }
+
+            allocatePTLibrary() {
+                const availableDays = this.days.filter(day => 
+                    day !== 'Friday' && day !== 'Saturday');
+                
+                if (availableDays.length < 2) {
+                    alert("Not enough available days for PT and Library allocation");
+                    return false;
+                }
+                
+                const shuffledDays = [...availableDays].sort(() => Math.random() - 0.5);
+                
+                let ptAllocated = false;
+                for (let day of shuffledDays) {
+                    if (this.timetable[day][9] === null) {
+                        this.timetable[day][9] = {
+                            subject: 'PT',
+                            teacher: 'PT Instructor',
+                            type: 'pt'
+                        };
+                        ptAllocated = true;
+                        shuffledDays.splice(shuffledDays.indexOf(day), 1);
+                        break;
+                    }
+                }
+                
+                if (!ptAllocated) {
+                    alert("Could not allocate PT hour.");
+                    return false;
+                }
+                
+                let libraryAllocated = false;
+                for (let day of shuffledDays) {
+                    for (let period = 0; period < this.periods; period++) {
+                        if (period === 2 || period === 5 || period === 8) {
+                            continue;
+                        }
+                        
+                        if (this.timetable[day][period] === null) {
+                            this.timetable[day][period] = {
+                                subject: 'LIBRARY',
+                                teacher: 'Librarian',
+                                type: 'library'
+                            };
+                            libraryAllocated = true;
+                            break;
+                        }
+                    }
+                    
+                    if (libraryAllocated) {
+                        break;
+                    }
+                }
+                
+                if (!libraryAllocated) {
+                    alert("Could not allocate Library hour.");
+                    return false;
+                }
+                
+                return true;
+            }
+
+            generateTimetable() {
+                this.initializeTimetable();
+                this.placeLabs();
+                this.placeLectures();
+                this.allocatePTLibrary();
+                this.saveTimetable();
+                return this.timetable;
+            }
+
+            getSubjectColor(subject) {
+                if (!this.subjectColors[subject]) {
+                    const darkerPastelColors = [
+                        '#B0E0E6', '#FFB6C1', '#FFDAB9', '#E6E6FA', 
+                        '#FFFACD', '#AFEEEE', '#F0E68C', '#DDA0DD', 
+                        '#B0C4DE', '#FFA07A'
+                    ];
+                    const colorIndex = Object.keys(this.subjectColors).length % darkerPastelColors.length;
+                    this.subjectColors[subject] = darkerPastelColors[colorIndex];
+                    localStorage.setItem('subjectColors', JSON.stringify(this.subjectColors));
+                }
+                return this.subjectColors[subject];
+            }
+
+            renderTimetable() {
+                const timetableBody = document.getElementById('timetableBody');
+                timetableBody.innerHTML = '';
+
+                this.days.forEach(day => {
+                    const row = timetableBody.insertRow();
+                    const dayCell = row.insertCell(0);
+                    dayCell.textContent = day;
+
+                    for (let i = 0; i < this.periods; i++) {
+                        const periodCell = row.insertCell();
+                        const periodData = this.timetable[day][i];
+
+                        periodCell.dataset.day = day;
+                        periodCell.dataset.period = i;
+                        
+                        if (!(periodData && periodData.type === 'break')) {
+                            periodCell.onclick = function() {
+                                showCellMenu(this);
+                            };
+                            const editIcon = document.createElement('span');
+                            editIcon.className = 'edit-icon';
+                            editIcon.innerHTML = '✏️';
+                            periodCell.appendChild(editIcon);
+                        }
+
+                        if (periodData) {
+                            if (periodData.type === 'break') {
+                                periodCell.classList.add('break');
+                                periodCell.textContent = periodData.subject;
+                            } else if (periodData.type === 'restricted') {
+                                periodCell.classList.add('restricted');
+                                periodCell.textContent = 'NOT AVAILABLE';
+                            } else if (periodData.type === 'library') {
+                                periodCell.classList.add('library');
+                                periodCell.innerHTML = `${periodData.subject}<br>(${periodData.teacher || ''})`;
+                            } else if (periodData.type === 'pt') {
+                                periodCell.classList.add('pt');
+                                periodCell.innerHTML = `${periodData.subject}<br>(${periodData.teacher || ''})`;
+                            } else if (periodData.type === 'wop') {
+                                periodCell.classList.add('wop');
+                                periodCell.innerHTML = `${periodData.subject}<br>(${periodData.teacher || ''})`;
+                            } else {
+                                const subjectColor = this.getSubjectColor(periodData.subject);
+                                periodCell.style.backgroundColor = subjectColor;
+                                periodCell.innerHTML = `${periodData.subject}<br>(${periodData.teacher || ''})`;
+                            }
+                        } else {
+                            periodCell.textContent = '-';
+                        }
+                    }
+                });
+            }
+
+            updateCellData(day, period, subject, teacher, type) {
+                if (!subject) {
+                    this.timetable[day][period] = null;
+                } else {
+                    if (teacher && this.isTeacherScheduledAtTime(teacher, day, period)) {
+                        return { success: false, message: `Teacher ${teacher} is already scheduled at this time in another semester` };
+                    }
+                    
+                    this.timetable[day][period] = {
+                        subject: subject,
+                        teacher: teacher || '',
+                        type: type || 'lecture'
+                    };
+                }
+                
+                this.saveTimetable();
+                this.renderTimetable();
+                return { success: true };
+            }
+
+            isTimetableFull() {
+                for (let day of this.days) {
+                    for (let period = 0; period < this.periods; period++) {
+                        if (this.timetable[day][period] === null) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+
+        const timetableGenerator = new TimetableGenerator();
+        let currentEditDay = null;
+        let currentEditPeriod = null;
+
+        window.onload = function() {
+            initializeLists();
+            populateDropdowns();
+            renderLists();
+            timetableGenerator.setSemester("1");
+            timetableGenerator.renderTimetable();
+            loadRequests();
+            
+            document.addEventListener('click', function(event) {
+                const menu = document.getElementById('cellMenu');
+                if (event.target !== menu && !menu.contains(event.target) && 
+                    !event.target.classList.contains('edit-icon') && 
+                    event.target.tagName !== 'TD') {
+                    hideMenu();
+                }
+            });
+
+            document.getElementById('courseTeacher').addEventListener('change', checkTeacherConflict);
+            document.getElementById('editTeacher').addEventListener('change', checkEditTeacherConflict);
+        };
+
+        function changeSemester() {
+            const semester = document.getElementById('semesterSelect').value;
+            timetableGenerator.setSemester(semester);
+            timetableGenerator.renderTimetable();
+        }
+
+        function checkTeacherConflict() {
+            const teacher = document.getElementById('courseTeacher').value;
+            const warningElement = document.getElementById('teacherConflictWarning');
+            
+            if (!teacher) {
+                warningElement.textContent = '';
+                return;
+            }
+            
+            const savedTimetables = JSON.parse(localStorage.getItem('timetables')) || {};
+            let conflicts = [];
+            
+            for (const semester in savedTimetables) {
+                const timetable = savedTimetables[semester];
+                for (const day in timetable) {
+                    for (let period = 0; period < timetable[day].length; period++) {
+                        const slot = timetable[day][period];
+                        if (slot && slot.teacher === teacher) {
+                            conflicts.push({
+                                semester,
+                                day,
+                                period: getPeriodTime(period),
+                                subject: slot.subject
+                            });
+                        }
+                    }
+                }
+            }
+            
+            if (conflicts.length > 0) {
+                let conflictText = 'Warning: This teacher is already scheduled at: ';
+                conflictText += conflicts.map(c => 
+                    `Semester ${c.semester}, ${c.day} ${c.period} (${c.subject})`
+                ).join(', ');
+                warningElement.textContent = conflictText;
+            } else {
+                warningElement.textContent = '';
+            }
+        }
+
+        function checkEditTeacherConflict() {
+            const teacher = document.getElementById('editTeacher').value;
+            const warningElement = document.getElementById('editConflictWarning');
+            
+            if (!teacher) {
+                warningElement.textContent = '';
+                return;
+            }
+            
+            const savedTimetables = JSON.parse(localStorage.getItem('timetables')) || {};
+            let conflicts = [];
+            
+            for (const semester in savedTimetables) {
+                const timetable = savedTimetables[semester];
+                for (const day in timetable) {
+                    for (let period = 0; period < timetable[day].length; period++) {
+                        const slot = timetable[day][period];
+                        if (slot && slot.teacher === teacher && 
+                            !(semester === timetableGenerator.currentSemester && 
+                              day === currentEditDay && 
+                              period === currentEditPeriod)) {
+                            conflicts.push({
+                                semester,
+                                day,
+                                period: getPeriodTime(period),
+                                subject: slot.subject
+                            });
+                        }
+                    }
+                }
+            }
+            
+            if (conflicts.length > 0) {
+                let conflictText = 'Warning: This teacher is already scheduled at: ';
+                conflictText += conflicts.map(c => 
+                    `Semester ${c.semester}, ${c.day} ${c.period} (${c.subject})`
+                ).join(', ');
+                warningElement.textContent = conflictText;
+            } else {
+                warningElement.textContent = '';
+            }
+        }
+
+        function getPeriodTime(period) {
+            const times = [
+                '9:00-9:50', '9:50-10:40', '10:40-10:50', '10:50-11:40', '11:40-12:30',
+                '12:30-1:20', '1:20-2:10', '2:10-3:00', '3:00-3:10', '3:10-4:00'
+            ];
+            return times[period] || '';
+        }
+
+        function initializeLists() {
+            if (!localStorage.getItem('subjects')) {
+                const defaultSubjects = [
+                    "Internetworking with TCP/IP",
+                    "Algorithm Analysis and Design",
+                    "Data Science",
+                    "Compiler Design",
+                    "Industrial Economics & Foreign Trade",
+                    "Comprehensive Course Work",
+                    "Computer Networks Lab",
+                    "Mini Project",
+                    "VAC/Remedial Minor",
+                    "Mobile Robotics/Honours Course"
+                ];
+                localStorage.setItem('subjects', JSON.stringify(defaultSubjects));
+            }
+
+            if (!localStorage.getItem('teachers')) {
+                const defaultTeachers = [
+                    "Asst. Prof. Priya Saira Mathews",
+                    "Asst. Prof. Smitha Mohan",
+                    "Asst. Prof. Sharath P Raju",
+                    "Asst. Prof. Kurian Thampy",
+                    "Asst. Prof. Saira Banu",
+                    "Asst. Prof. Ajaykumar M V",
+                    "Asst. Prof. Neomi Nelin Nicholas",
+                    "Asst. Prof. Sheetal"
+                ];
+                localStorage.setItem('teachers', JSON.stringify(defaultTeachers));
+            }
+        }
+
+        function populateDropdowns() {
+            const subjects = JSON.parse(localStorage.getItem('subjects'));
+            const teachers = JSON.parse(localStorage.getItem('teachers'));
+
+            const subjectSelect = document.getElementById('courseSubject');
+            const teacherSelect = document.getElementById('courseTeacher');
+            const editSubjectSelect = document.getElementById('editSubject');
+            const editTeacherSelect = document.getElementById('editTeacher');
+
+            while (subjectSelect.options.length > 1) subjectSelect.remove(1);
+            while (teacherSelect.options.length > 1) teacherSelect.remove(1);
+            while (editSubjectSelect.options.length > 4) editSubjectSelect.remove(4);
+            while (editTeacherSelect.options.length > 3) editTeacherSelect.remove(3);
+
+            subjects.forEach(subject => {
+                const option1 = document.createElement('option');
+                option1.value = subject;
+                option1.textContent = subject;
+                subjectSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = subject;
+                option2.textContent = subject;
+                editSubjectSelect.appendChild(option2);
+            });
+
+            teachers.forEach(teacher => {
+                const option1 = document.createElement('option');
+                option1.value = teacher;
+                option1.textContent = teacher;
+                teacherSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = teacher;
+                option2.textContent = teacher;
+                editTeacherSelect.appendChild(option2);
+            });
+        }
+
+        function renderLists() {
+            const subjects = JSON.parse(localStorage.getItem('subjects'));
+            const teachers = JSON.parse(localStorage.getItem('teachers'));
+
+            const subjectList = document.getElementById('subjectList');
+            const teacherList = document.getElementById('teacherList');
+
+            subjectList.innerHTML = '';
+            teacherList.innerHTML = '';
+
+            subjects.forEach((subject, index) => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <span>${subject}</span>
+                    <button onclick="removeItem('subjects', ${index})">×</button>
+                `;
+                subjectList.appendChild(item);
+            });
+
+            teachers.forEach((teacher, index) => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <span>${teacher}</span>
+                    <button onclick="removeItem('teachers', ${index})">×</button>
+                `;
+                teacherList.appendChild(item);
+            });
+        }
+
+        function addSubject() {
+            const newSubjectInput = document.getElementById('newSubject');
+            const newSubject = newSubjectInput.value.trim();
+
+            if (!newSubject) {
+                alert('Please enter a subject name');
+                return;
+            }
+
+            const subjects = JSON.parse(localStorage.getItem('subjects'));
+            if (subjects.includes(newSubject)) {
+                alert('This subject already exists');
+                return;
+            }
+
+            subjects.push(newSubject);
+            localStorage.setItem('subjects', JSON.stringify(subjects));
+            newSubjectInput.value = '';
+            
+            populateDropdowns();
+            renderLists();
+        }
+
+        function addTeacher() {
+            const newTeacherInput = document.getElementById('newTeacher');
+            const newTeacher = newTeacherInput.value.trim();
+
+            if (!newTeacher) {
+                alert('Please enter a teacher name');
+                return;
+            }
+
+            const teachers = JSON.parse(localStorage.getItem('teachers'));
+            if (teachers.includes(newTeacher)) {
+                alert('This teacher already exists');
+                return;
+            }
+
+            teachers.push(newTeacher);
+            localStorage.setItem('teachers', JSON.stringify(teachers));
+            newTeacherInput.value = '';
+            
+            populateDropdowns();
+            renderLists();
+        }
+
+        function removeItem(listType, index) {
+            const list = JSON.parse(localStorage.getItem(listType));
+            if (index >= 0 && index < list.length) {
+                const item = list[index];
+                if (confirm(`Are you sure you want to remove "${item}"?`)) {
+                    list.splice(index, 1);
+                    localStorage.setItem(listType, JSON.stringify(list));
+                    populateDropdowns();
+                    renderLists();
+                }
+            }
+        }
+
+        function addCourse() {
+            const subject = document.getElementById('courseSubject').value;
+            const teacher = document.getElementById('courseTeacher').value;
+            const hoursInput = document.getElementById('courseHours').value;
+            const hours = parseInt(hoursInput);
+            const courseType = document.querySelector('input[name="courseType"]:checked').value;
+
+            if (!subject || !teacher || !hours) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            if (isNaN(hours) || hours < 1 || hours > 6) {
+                alert('Hours must be between 1 and 6');
+                return;
+            }
+
+            if (timetableGenerator.isTimetableFull()) {
+                alert('Timetable is full. Cannot add more subjects.');
+                return;
+            }
+
+            const confirmation = confirm(`Do you want to add ${subject} by ${teacher} for ${hours} hours per week?`);
+            if (!confirmation) {
+                return;
+            }
+
+            const added = timetableGenerator.addCourse(subject, teacher, hours, courseType);
+            
+            if (added) {
+                document.getElementById('courseSubject').selectedIndex = 0;
+                document.getElementById('courseTeacher').selectedIndex = 0;
+                document.getElementById('courseHours').value = '';
+                document.getElementById('lectureRadio').checked = true;
+
+                timetableGenerator.generateTimetable();
+                timetableGenerator.renderTimetable();
+                localStorage.setItem('timetable', JSON.stringify(timetableGenerator.timetable));
+            }
+        }
+
+        function deleteTimetable() {
+            if (confirm('Are you sure you want to delete the current timetable? This action cannot be undone.')) {
+                timetableGenerator.timetable = {};
+                timetableGenerator.clearCourses();
+                timetableGenerator.initializeTimetable();
+                timetableGenerator.renderTimetable();
+                localStorage.removeItem('timetable');
+                alert('Timetable has been deleted. You can now create a new one.');
+            }
+        }
+
+        function loadRequests() {
+            const requestsContainer = document.getElementById('requestsContainer');
+            const requests = JSON.parse(localStorage.getItem('requests')) || [];
+            
+            if (requests.length === 0) {
+                requestsContainer.innerHTML = '<p>No pending requests.</p>';
+                return;
+            }
+            
+            requestsContainer.innerHTML = '';
+            
+            requests.forEach((request, index) => {
+                const requestItem = document.createElement('div');
+                requestItem.className = 'request-item';
+                requestItem.innerHTML = `
+                    <p><strong>Request #${index + 1}:</strong> ${request}</p>
+                    <div class="request-actions">
+                        <button class="approve-btn" onclick="handleRequest(${index}, 'approve')">Approve</button>
+                        <button class="reject-btn" onclick="handleRequest(${index}, 'reject')">Reject</button>
+                    </div>
+                `;
+                requestsContainer.appendChild(requestItem);
+            });
+        }
+
+        function handleRequest(index, action) {
+            const requests = JSON.parse(localStorage.getItem('requests')) || [];
+            
+            if (index >= 0 && index < requests.length) {
+                const requestText = requests[index];
+                const actionText = action === 'approve' ? 'approved' : 'rejected';
+                
+                requests.splice(index, 1);
+                localStorage.setItem('requests', JSON.stringify(requests));
+                
+                alert(`Request ${actionText}: "${requestText}"`);
+                
+                loadRequests();
+            }
+        }
+
+        function goToHomePage() {
+            window.location.href = 'index.html';
+        }
+        
+        function showCellMenu(cell) {
+            const day = cell.dataset.day;
+            const period = parseInt(cell.dataset.period);
+            
+            const cellData = timetableGenerator.timetable[day][period];
+            if (cellData && (cellData.type === 'break' || cellData.type === 'restricted')) {
+                return;
+            }
+            
+            currentEditDay = day;
+            currentEditPeriod = period;
+            
+            const editSubject = document.getElementById('editSubject');
+            const editTeacher = document.getElementById('editTeacher');
+            const editType = document.getElementById('editType');
+            
+            if (cellData) {
+                editSubject.value = cellData.subject || '';
+                editTeacher.value = cellData.teacher || '';
+                editType.value = cellData.type || 'lecture';
+            } else {
+                editSubject.value = '';
+                editTeacher.value = '';
+                editType.value = 'lecture';
+            }
+            
+            const menu = document.getElementById('cellMenu');
+            const rect = cell.getBoundingClientRect();
+            menu.style.display = 'block';
+            menu.style.top = (rect.bottom + window.scrollY) + 'px';
+            menu.style.left = (rect.left + window.scrollX) + 'px';
+            
+            checkEditTeacherConflict();
+        }
+
+        function updateCell() {
+            const subject = document.getElementById('editSubject').value;
+            const teacher = document.getElementById('editTeacher').value;
+            const type = document.getElementById('editType').value;
+            
+            if (currentEditDay === 'Saturday' && currentEditPeriod === 9) {
+                alert('Saturday last period (3:10-4:00) must remain empty as per policy.');
+                hideMenu();
+                return;
+            }
+            
+            const result = timetableGenerator.updateCellData(currentEditDay, currentEditPeriod, subject, teacher, type);
+            if (!result.success) {
+                alert(result.message);
+                return;
+            }
+            
+            hideMenu();
+        }
+
+        function hideMenu() {
+            const menu = document.getElementById('cellMenu');
+            menu.style.display = 'none';
+            currentEditDay = null;
+            currentEditPeriod = null;
+        }
+    </script>
+</body>
+</html>
